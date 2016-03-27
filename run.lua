@@ -1,4 +1,4 @@
---deneme 
+--deneme1
 
 -- include required packages
 require 'xlua'	
