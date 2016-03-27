@@ -9,6 +9,8 @@ xrequire('camera',true)
 
 
 
+
+
 -- setup UI
 widget = qtuiloader.load('gui.ui')
 win1 = qt.QtLuaPainter(widget.frame)
