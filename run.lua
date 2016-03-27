@@ -1,3 +1,4 @@
+--deneme 
 
 -- include required packages
 require 'xlua'	
@@ -6,9 +7,6 @@ require 'qtwidget'
 require 'qtuiloader'
 xrequire('nnx',true)
 xrequire('camera',true)
-
-
-
 
 
 -- setup UI
