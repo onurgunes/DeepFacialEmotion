@@ -18,6 +18,16 @@ function display()
   cam = torch.Tensor(100,100)
 	cam = camera:forward()	-- takes image from camera
 	image.display{image = cam, win = win1, zoom = 0.75}	--original image
+	
+	if changeValues == true then
+	   --  progressBar_2
+	   --widget.label:setText("Degisti");
+	   widget.progressBar:setValue(math.random(0,100));
+	   widget.progressBar_2:setValue(math.random(0,100));
+	   widget.progressBar_3:setValue(math.random(0,100));
+	   --print("tiklandi")
+	   changeValues = false
+	end 
 end
 
 -- train network
@@ -29,6 +39,14 @@ end
 function test(dataset)
 
 end
+
+-- button callback
+qt.connect(qt.QtLuaListener(widget.btnChange),
+          'sigMousePress(int,int,QByteArray,QByteArray,QByteArray)',
+          function ()
+            changeValues = true
+          end);
+--function (...) changeValues = true end
 
 -- timer
 timer = qt.QTimer()
