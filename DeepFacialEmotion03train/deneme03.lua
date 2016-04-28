@@ -12,20 +12,35 @@ cv.ml = require 'cv.ml' -- Machine Learning
 
 -- IMAGE CHANNEL İŞLEMLERİ
 
-toplamImage = 620
-
+toplamImage1 = 432
+toplamImage2 = 620
+toplamImage3 = 160
+toplamImage = toplamImage1 + toplamImage2 + toplamImage3
 trainData = {
 data = torch.Tensor(toplamImage,3,32,32),
 size = function() return toplamImage end
 }
 
 
-for f=0,(toplamImage-1) do
-  trainData.data[f+1][1] = image.load('1angerofke/'..f..'.png') 
-  trainData.data[f+1][2] = image.load('1angerofke/'..f..'.png') 
-  trainData.data[f+1][3] = image.load('1angerofke/'..f..'.png') 
-  image.save('1angerofke2/'..f..'.png', trainData.data[f+1])   -- KAYIT
+for f=1,(toplamImage1) do
+  trainData.data[f][1] = image.load('0neutral/'..f..'.png') 
+  trainData.data[f][2] = image.load('0neutral/'..f..'.png') 
+  trainData.data[f][3] = image.load('0neutral/'..f..'.png') 
+  image.save('0neutral/'..f..'.png', trainData.data[f])   -- KAYIT
 end
+for f=1,(toplamImage2) do
+  trainData.data[f][1] = image.load('1angerofke/'..f..'.png') 
+  trainData.data[f][2] = image.load('1angerofke/'..f..'.png') 
+  trainData.data[f][3] = image.load('1angerofke/'..f..'.png') 
+  image.save('1angerofke/'..f..'.png', trainData.data[f])   -- KAYIT
+end
+for f=1,(toplamImage3) do
+  trainData.data[f][1] = image.load('2happymutlu/'..f..'.png') 
+  trainData.data[f][2] = image.load('2happymutlu/'..f..'.png') 
+  trainData.data[f][3] = image.load('2happymutlu/'..f..'.png') 
+  image.save('2happymutlu/'..f..'.png', trainData.data[f])   -- KAYIT
+end
+
 
 print('tamamlandı...')
 

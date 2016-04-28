@@ -13,9 +13,9 @@ xrequire('camera',true)
 require 'nn'
 require 'optim'
 require 'image'
-model = torch.load('cifar770epoch3class.net')
+model = torch.load('egitilmisModel100e5c.net')
 
-classes = {'0neutral','1angerofke','2happymutlu'}
+classes = {'1imageNotr','2imageMutlu','3imageUzgun','4imageSaskin','5imageSinirli'}
 confusion = optim.ConfusionMatrix(classes)
 criterion = nn.ClassNLLCriterion()
 
@@ -167,12 +167,12 @@ function display()
 	   
 	   if crop then -- crop olursa değerleri değiştir
   	   widget.progressBar:setValue(pred[1]*100);
-  	   widget.progressBar_2:setValue(pred[3]*100);
-  	   widget.progressBar_3:setValue(1);
-  	   widget.progressBar_4:setValue(1);
+  	   widget.progressBar_2:setValue(pred[2]*100);
+  	   widget.progressBar_3:setValue(pred[3]*100);
+  	   widget.progressBar_4:setValue(pred[4]*100);
   	   widget.progressBar_5:setValue(1);
   	   widget.progressBar_6:setValue(1);
-  	   widget.progressBar_7:setValue(pred[2]*100);
+  	   widget.progressBar_7:setValue(pred[5]*100);
   	   widget.progressBar_8:setValue(1);
 	   end
 end

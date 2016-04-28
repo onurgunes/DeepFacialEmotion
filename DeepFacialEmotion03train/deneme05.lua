@@ -9,12 +9,13 @@ require 'image'
 -- parse command-line options
 --
 dname,fname = sys.fpath()
+fname = "egitilmisModel"
 cmd = torch.CmdLine()
 cmd:text()
 cmd:text('CIFAR Training')
 cmd:text()
 cmd:text('Options:')
-cmd:option('-save', fname:gsub('.lua',''), 'kayıt ve log için alt dizin adı')
+cmd:option('-save', fname, 'kayıt ve log için alt dizin adı')
 cmd:option('-network', '', 'reload pretrained network')  -- KULLANILMADI
 cmd:option('-model', 'convnet', 'eğitimdeki kullanılacak model tipi: convnet | mlp | linear')
 cmd:option('-full', false, 'use full dataset (50,000 samples)')  -- KULLANILMADI
@@ -95,22 +96,12 @@ criterion = nn.ClassNLLCriterion()
 
 ----------------------------------------------------------------------
 -- get/create dataset
-trsize = 1212 -- EĞİTİM TOPLAM IMAGE SAYISI
+trsize = 6302 -- EĞİTİM TOPLAM IMAGE SAYISI
 trainData = {
    size = function() return trsize end
 }
 
-trainData = torch.load('traindeneme.t7')
-
--- image.display(trainData.data[1]) -- TEST AMAÇLI
-
--- 1051 DE HATA VAR (DÜZELTİLDİ)
--- trainData.data[1051] = trainData.data[1050]
--- trainData.labels[1051] = trainData.labels[1050]
--- image.display(trainData.data[1051])
--- print(trainData.labels[1051])
-
--- image.display(trainData.data[1210])
+trainData = torch.load('trainDataset.t7')
 
 ----------------------------------------------------------------------
 -- preprocess/normalize train/test sets
@@ -130,15 +121,11 @@ for i = 1,trainData:size() do
    trainData.data[i] = yuv
 end
 
--- image.display(trainData.data[1])
-
 -- normalize u globally:
 mean_u = trainData.data[{ {},2,{},{} }]:mean()
 std_u = trainData.data[{ {},2,{},{} }]:std()
 trainData.data[{ {},2,{},{} }]:add(-mean_u)
 trainData.data[{ {},2,{},{} }]:div(-std_u)
-
--- image.display(trainData.data[1])
 
 -- normalize v globally:
 mean_v = trainData.data[{ {},3,{},{} }]:mean()
@@ -146,22 +133,12 @@ std_v = trainData.data[{ {},3,{},{} }]:std()
 trainData.data[{ {},3,{},{} }]:add(-mean_v)
 trainData.data[{ {},3,{},{} }]:div(-std_v)
 
--- image.display(trainData.data[1])
 
-
-
-tesize = 3
+tesize = 50
 testData = {
-data = torch.Tensor(tesize,3,32,32),  -- PARAMETRE 2 = CHANNEL -> GRAY 1 , RGB 3
-labels = torch.Tensor(tesize),
    size = function() return tesize end
 }
-  testData.data[1] = image.load('test1.png')
-  testData.labels[1] = 2
-  testData.data[2] = image.load('test2.png')
-  testData.labels[2] = 3
-  testData.data[3] = image.load('test3.png')
-  testData.labels[3] = 1
+testData = torch.load('testDataset.t7')
 
 
 -- preprocess testSet
@@ -185,12 +162,6 @@ testData.data[{ {},3,{},{} }]:div(-std_v)
 collectgarbage()
 
 
-
-
-
-
-
-
 ----------------------------------------------------------------------
 -- define training and testing functions
 --
@@ -202,8 +173,8 @@ confusion = optim.ConfusionMatrix(classes)
 
 
 -- log results to files
-accLogger = optim.Logger(paths.concat(opt.save, 'accuracy.log'))
-errLogger = optim.Logger(paths.concat(opt.save, 'error.log'   ))
+accLogger = optim.Logger(paths.concat(opt.save, 'dogruluk.log'))
+errLogger = optim.Logger(paths.concat(opt.save, 'hata.log'   ))
 
 -- display function
 function display(input)
@@ -218,7 +189,7 @@ function display(input)
             win=win_w1, legend='Aşama 1: Ağırlıklar', padding=1
          }
          win_w2 = image.display{
-            image=model:get(4).weight, zoom=4, nrow=30,
+            image=model:get(4).weight, zoom=2, nrow=30,
             min=-1, max=1,
             win=win_w2, legend='Aşama 2: Ağırlıklar', padding=1
          }
@@ -226,12 +197,12 @@ function display(input)
          local W1 = torch.Tensor(model:get(2).weight):resize(2048,1024)
          win_w1 = image.display{
             image=W1, zoom=0.5, min=-1, max=1,
-            win=win_w1, legend='W1 weights'
+            win=win_w1, legend='W1 Ağırlıklar'
          }
          local W2 = torch.Tensor(model:get(2).weight):resize(10,2048)
          win_w2 = image.display{
             image=W2, zoom=0.5, min=-1, max=1,
-            win=win_w2, legend='W2 weights'
+            win=win_w2, legend='W2 Ağırlıklar'
          }
       end
    end
@@ -350,7 +321,7 @@ function train(dataset)
    confusion:zero()
 
    -- save/log current net
-   local filename = paths.concat(opt.save, 'cifar.net')
+   local filename = paths.concat(opt.save, 'egitilmisModel.net')
    os.execute('mkdir -p ' .. paths.dirname(filename))
    if paths.filep(filename) then
       os.execute('mv ' .. filename .. ' ' .. filename .. '.old')
@@ -417,57 +388,6 @@ function test(dataset)
    return testAccuracy, testError
 end
 
--- print('tamamlandı')
-
-
-
---------------------------------- TEST İÇİN DENEME ----------------------
--------------------------------------------------------------------------
-
---[[
- -- local vars
-   local testError = 0
-   -- test over given dataset
-   print('test başlasıııııınnn:')
-   
-   
-   
-   for i=1,2 do
-      -- get new sample
-      local input = image.load('test1.png')
-      image.display(input)
-      local target =i
-      -- test sample
-      local pred = model:forward(input)
-      print('pred:')
-      print(pred)
-      confusion:add(pred, target)
-      -- compute error
-      err = criterion:forward(pred, target)
-       print('err:')
-      print(err)
-      testError = testError + err
-      -- testing error estimation
-      testError = testError / trainData:size()
-      print('testError:')
-      print(testError)
-      
-end
-
-   -- print confusion matrix
-   print(confusion)
-   local testAccuracy = confusion.totalValid * 100
-   print('testAccuracy:')
-   print(testAccuracy)
-
- print('test bitsiiiiiiiiiinn')
-
-]]--
-
---------------------------------- TEST İÇİN DENEME ----------------------
--------------------------------------------------------------------------
-
-
 
 
 
@@ -483,12 +403,12 @@ while true do
    testAcc,  testErr  = test (testData)
 
    -- update logger
-   accLogger:add{['% train accuracy'] = trainAcc, ['% test accuracy'] = testAcc}
-   errLogger:add{['% train error']    = trainErr, ['% test error']    = testErr}
+   accLogger:add{['% egitimde doğruluk'] = trainAcc, ['% testte dogruluk'] = testAcc}
+   errLogger:add{['% egitimde hata']    = trainErr, ['% testte hata']    = testErr}
 
    -- plot logger
-   accLogger:style{['% train accuracy'] = '-', ['% test accuracy'] = '-'}
-   errLogger:style{['% train error']    = '-', ['% test error']    = '-'}
+   accLogger:style{['% egitimde dogruluk'] = '-', ['% testte dogruluk'] = '-'}
+   errLogger:style{['% egitimde hata']    = '-', ['% testte hata']    = '-'}
    accLogger:plot()
    errLogger:plot()
 end
