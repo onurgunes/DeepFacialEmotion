@@ -44,7 +44,7 @@ require 'qtwidget'
 require 'qtuiloader'
 
 -- setup UI
-widgetEgitim = qtuiloader.load('guiEgitimGorsel.ui')
+widgetEgitim = qtuiloader.load('GUIandData/guiEgitimGorsel.ui')
 winE1 = qt.QtLuaPainter(widgetEgitim.frameE1)
 winE2 = qt.QtLuaPainter(widgetEgitim.frameE2)
 winE3 = qt.QtLuaPainter(widgetEgitim.frameE3)
@@ -149,12 +149,13 @@ data = torch.Tensor(tesize,3,32,32),
 labels = torch.Tensor(tesize),
    size = function() return tesize end
 }
-  testData.data[1] = image.load('test1.png')
+  testData.data[1] = image.load('GUIandData/test1.png')
   testData.labels[1] = 2
-  testData.data[2] = image.load('test2.png')
+  testData.data[2] = image.load('GUIandData/test2.png')
   testData.labels[2] = 3
-  testData.data[3] = image.load('test3.png')
+  testData.data[3] = image.load('GUIandData/test3.png')
   testData.labels[3] = 1
+
 
 
 -- preprocess testSet

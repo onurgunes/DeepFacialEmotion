@@ -38,11 +38,11 @@ cv.ml = require 'cv.ml' -- Machine Learning
 
 -- OPENCV icin (gereksizler silinecek)
 
-local cascade_path = 'haarcascade_frontalface_default.xml'
+local cascade_path = 'GUIandData/haarcascade_frontalface_default.xml'
 local face_cascade = cv.CascadeClassifier{filename=cascade_path}
 
 -- setup UI
-widget = qtuiloader.load('guiTrain.ui')
+widget = qtuiloader.load('GUIandData/guiTrain.ui')
 win1 = qt.QtLuaPainter(widget.frame)
 win2 = qt.QtLuaPainter(widget.frame2) -- CROPLU IMAGE GOSTEREN FRAME
 

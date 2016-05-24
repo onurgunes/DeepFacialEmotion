@@ -53,11 +53,11 @@ cv.ml = require 'cv.ml' -- Machine Learning
 
 -- OPENCV icin (gereksizler silinecek)
 
-local cascade_path = 'haarcascade_frontalface_default.xml'
+local cascade_path = 'GUIandData/haarcascade_frontalface_default.xml'
 local face_cascade = cv.CascadeClassifier{filename=cascade_path}
 
 -- setup UI
-widget = qtuiloader.load('guiTest.ui')
+widget = qtuiloader.load('GUIandData/guiTest.ui')
 win1 = qt.QtLuaPainter(widget.frame)
 win2 = qt.QtLuaPainter(widget.frame2) -- CROPLU IMAGE GOSTEREN FRAME
 win3 = qt.QtLuaPainter(widget.frame3) -- CROPLU IMAGE GOSTEREN FRAME YUV
@@ -112,7 +112,7 @@ function display()
           rgbTensorCroped = convertBRGtoRGB(im)
         end
       
-      -- rgbTensorCroped = image.load('test1.png') -- TEST IMAGE EĞİTİMDE KULLANILAN
+      -- rgbTensorCroped = image.load('GUIandData/test1.png') -- TEST IMAGE EĞİTİMDE KULLANILAN
       
       image.display{image = rgbTensorCroped, win = win2, zoom = 1}  -- CROP GOSTER
       

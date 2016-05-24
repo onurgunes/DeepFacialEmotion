@@ -8,7 +8,7 @@ require 'qtwidget'
 require 'qtuiloader'
 
 -- setup UI
-widget = qtuiloader.load('guiStart.ui')
+widget = qtuiloader.load('GUIandData/guiStart.ui')
 win1 = qt.QtLuaPainter(widget.frame)
 
 ------------------------------------------------------------------------

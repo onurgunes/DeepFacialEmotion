@@ -7,7 +7,7 @@ require 'qtuiloader'
 xrequire('nnx',true)
 xrequire('camera',true)
 
-
+require 'ffmpeg'
 require 'nn'
 require 'optim'
 require 'image'
@@ -25,7 +25,6 @@ labels = torch.Tensor(tesize),
 }
 
 normalization = nn.SpatialContrastiveNormalization(1, image.gaussian1D(7))
-
 
 require 'pl'
 require 'trepl'
@@ -49,19 +48,21 @@ win1 = qt.QtLuaPainter(widget.frame)
 win2 = qt.QtLuaPainter(widget.frame2) -- CROPLU IMAGE GOSTEREN FRAME
 win3 = qt.QtLuaPainter(widget.frame3) -- CROPLU IMAGE GOSTEREN FRAME YUV
 
--- initializing the camera
-  local cap = cv.VideoCapture{device=0}
-  local _, frame = cap:read{}
-  -- camera = image.Camera{}
-
 function display()
 
-   local fx = 0.20  -- rescale factor -- 1 olunca hata artar
+      
+
+    -- cv.imshow{"cv1", frame}
+    
+   local fx = 0.30  -- rescale factor -- 1 olunca hata artar
    local w = frame:size(2)
    local h = frame:size(1)
    local im2 = cv.resize{src=frame, fx=fx, fy=fx}
-   cv.cvtColor{src=im2, dst=im2, code=cv.COLOR_BGR2GRAY}
-   local faces = face_cascade:detectMultiScale{image = im2}
+   
+   -- cv.cvtColor{src=im2, dst=im2, code=cv.COLOR_BGR2GRAY} -- PROBLEM VAR
+   im2 = cv.cvtColor{im2, code=cv.COLOR_RGB2GRAY}
+   
+   local faces = face_cascade:detectMultiScale{image = im2} 
    for i=1,faces.size do
       local f = faces.data[i]
       local x = f.x/fx
@@ -95,6 +96,8 @@ function display()
         else
           rgbTensorCroped = convertBRGtoRGB(im)
         end
+
+
       
       -- image.display(rgbTensorCroped)
       
@@ -148,18 +151,64 @@ function display()
       rgbTensor = convertBRGtoRGB(frame) -- OpenCV formatından Torch'a cevirir.
       
       -- cv.imshow{winname="Yuz Bulur", image=frame} Eski OpenCV formatı pencere
+      
       image.display{image = rgbTensor, win = win1, zoom = 1}  --yeni format
-      cap:read{image=frame}
       
+     if videoileTest  ~= 1 then
+        cap:read{image=frame}
+     end
       
-	   if crop then -- crop olursa değerleri değiştir
-  	   widget.progressBar:setValue(pred[1]*100);
-  	   widget.progressBar_2:setValue(pred[2]*100);
-  	   widget.progressBar_3:setValue(pred[3]*100);
-  	   widget.progressBar_4:setValue(pred[4]*100);
-  	   widget.progressBar_7:setValue(pred[5]*100);
-	   end
+     if crop then -- crop olursa değerleri değiştir
+       widget.progressBar:setValue(pred[1]*100);
+       widget.progressBar_2:setValue(pred[2]*100);
+       widget.progressBar_3:setValue(pred[3]*100);
+       widget.progressBar_4:setValue(pred[4]*100);
+       widget.progressBar_7:setValue(pred[5]*100);
+     end
 end
+
+
+
+
+
+function videofindImages(videoName,vidSure) -- get images created by video
+    --klasor bul
+    for i in io.popen("ls temp"):lines() do
+      if string.find(i, videoName) then 
+        foldername = i
+      end
+    end
+    print(foldername)
+    
+    videoimagesayisi =1
+    --image bul
+    filenames = {}
+    imagePath = {size = function() return videoimagesayisi end}
+    
+    dosyasayisi = 0
+    for i in io.popen("ls temp/"..videoName.."*"..vidSure.."*"):lines() do
+      if string.find(i,"%.png") then 
+        dosyasayisi = dosyasayisi + 1
+        filenames[dosyasayisi] = i
+        imagePath[dosyasayisi] = "temp/"..foldername .. "/" ..filenames[dosyasayisi]
+        
+      end
+    end
+    videoimagesayisi = dosyasayisi
+    --print(imagePath[5])
+    return imagePath
+end
+
+
+function videoLoad(videoName) -- get images created by video
+    -- image yukle
+    loadType = cv.IMREAD_UNCHANGED
+    imageLoaded = cv.imread{videoName, loadType}
+    return imageLoaded
+end
+
+
+
 
 
 -----------------------------------------------------------------------
@@ -175,6 +224,18 @@ function convertBRGtoRGB(frame)
       --Bu aşamadan sonra rgbTensor formati Torch a uygun
       return rgbTensor
 end
+-- RGB to BGR
+function convertRGBtoBGR(frame)  -- Torch formatından OpenCV e cevirir.
+      local deneme = torch.Tensor(3,frame:size(2),frame:size(3))
+      deneme[1] = frame[3]
+      deneme[2] = frame[2]
+      deneme[3] = frame[1] 
+      local forQTimage = deneme:transpose(1,2):transpose(2,3) 
+      local rgbTensor = forQTimage:clone()
+      --Bu aşamadan sonra rgbTensor formati OpenCV ye uygun
+      return rgbTensor
+end
+-----------------------------------------------------------------------
 -----------------------------------------------------------------------
 
 -- fotograf button callback
@@ -186,6 +247,7 @@ qt.connect(qt.QtLuaListener(widget.btnFoto),
             secilecekdosyaadi = qt.QString.tostring(secilecekdosyaadi1)
             fotoileTest = 1
             webcamileTest  = 0
+            videoileTest  = 0
             -- print(secilecekdosyaadi)
           end);
 -- webcam button callback
@@ -194,21 +256,98 @@ qt.connect(qt.QtLuaListener(widget.btnCam),
           function ()
             fotoileTest = 0
             webcamileTest  = 1
+            videoileTest  = 0
+            
+            -- initializing the camera
+              cap = cv.VideoCapture{device=0}
+              _, frame = cap:read{}
+            -- timer
+            timer = qt.QTimer()
+            timer.interval = 50
+            timer.singleShot = true
+            qt.connect(timer,
+              'timeout()',
+              function() 
+                display()
+                collectgarbage()
+                timer:start()
+              end)
+            timer:start()
+          end);
+    
+
+-- DEFAULT DEGERLER
+videoYol = '/home/mkf/Masaüstü/eclipseLUAproj/DeepFacialEmotion07All/hazirtest/video.avi'
+videoAd = 'video.avi'
+videoWidth   = 320
+videoHeight  = 240
+videoSeconds = 10     -- kac saniye
+videoFps     = 25    -- saniyede kac frame
+videoToplam  = videoSeconds * videoFps
+videoBasla   = 1 
+function GetFileName(filepath)
+  return filepath:match("^.+/(.+)$")
+end
+
+
+widget.btnVideo.enabled = false
+-- Video button callback
+qt.connect(qt.QtLuaListener(widget.btnVideo),
+          'sigMousePress(int,int,QByteArray,QByteArray,QByteArray)',
+          function ()
+            if timer then
+              timer:stop()
+            end
+            videoBasla   = 1 
+            videoSeconds   = qt.QString.tostring(widget.lineEditvideoSure.text)
+            videoToplam  = videoSeconds * videoFps
+            
+            video = ffmpeg.Video{path=videoYol, width=videoWidth, height=videoHeight, 
+                                  fps=videoFps, length=videoSeconds, delete=false, destFolder='temp'}
+            videoSecondsedited = videoSeconds.."s" -- aramada uygun şekilde bulunması için              
+            videoPathNames = videofindImages(videoAd,videoSeconds)
+                          
+            timer1 = qt.QTimer()
+            timer1.interval = 40
+            timer1.singleShot = true
+            qt.connect(timer1,
+                       'timeout()',
+                       function()
+                          frame = videoLoad(videoPathNames[videoBasla])
+                          display()
+                          collectgarbage()
+                          videoBasla = videoBasla +1
+                          timer1:start()
+                          if videoBasla > videoToplam then
+                            timer1:stop()
+                            print('video bitti')
+                            widget.btnVideoSec.enabled = true
+                            widget.btnVideo.enabled = false
+                          end
+                       end)
+            timer1:start()
+          end);
+          
+          
+
+          
+-- Video Sec button callback
+qt.connect(qt.QtLuaListener(widget.btnVideoSec),
+          'sigMousePress(int,int,QByteArray,QByteArray,QByteArray)',
+          function ()
+            fotoileTest = 0
+            webcamileTest  = 0
+            videoileTest  = 1
+            videoYol1 = qt.QFileDialog.getOpenFileName(this,'Video Seç')
+            videoYol = qt.QString.tostring(videoYol1)
+            videoAd=GetFileName(videoYol)
+            print(videoAd)
+            print(videoYol)
+            widget.btnVideoSec.enabled = false
+            widget.btnVideo.enabled = true
           end);
 
 
--- timer
-timer = qt.QTimer()
-timer.interval = 50
-timer.singleShot = true
-qt.connect(timer,
-  'timeout()',
-  function() 
-    display()
-    collectgarbage()
-    timer:start()
-  end)
-
 widget.windowTitle = 'Deep Facial Emotion Detector'
 widget:show()
-timer:start()
+
