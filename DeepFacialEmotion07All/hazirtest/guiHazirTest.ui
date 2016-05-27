@@ -32,12 +32,12 @@
     <enum>QFrame::Raised</enum>
    </property>
   </widget>
-  <widget class="QProgressBar" name="progressBar_7">
+  <widget class="QProgressBar" name="progressBar_05">
    <property name="geometry">
     <rect>
-     <x>780</x>
-     <y>360</y>
-     <width>118</width>
+     <x>750</x>
+     <y>380</y>
+     <width>71</width>
      <height>23</height>
     </rect>
    </property>
@@ -61,12 +61,12 @@
     <string>Foto ile Test</string>
    </property>
   </widget>
-  <widget class="QProgressBar" name="progressBar">
+  <widget class="QProgressBar" name="progressBar_01">
    <property name="geometry">
     <rect>
-     <x>780</x>
-     <y>240</y>
-     <width>118</width>
+     <x>750</x>
+     <y>260</y>
+     <width>71</width>
      <height>23</height>
     </rect>
    </property>
@@ -74,12 +74,12 @@
     <number>24</number>
    </property>
   </widget>
-  <widget class="QProgressBar" name="progressBar_3">
+  <widget class="QProgressBar" name="progressBar_03">
    <property name="geometry">
     <rect>
-     <x>780</x>
-     <y>300</y>
-     <width>118</width>
+     <x>750</x>
+     <y>320</y>
+     <width>71</width>
      <height>23</height>
     </rect>
    </property>
@@ -87,12 +87,12 @@
     <number>24</number>
    </property>
   </widget>
-  <widget class="QProgressBar" name="progressBar_2">
+  <widget class="QProgressBar" name="progressBar_02">
    <property name="geometry">
     <rect>
-     <x>780</x>
-     <y>270</y>
-     <width>118</width>
+     <x>750</x>
+     <y>290</y>
+     <width>71</width>
      <height>23</height>
     </rect>
    </property>
@@ -100,12 +100,12 @@
     <number>24</number>
    </property>
   </widget>
-  <widget class="QProgressBar" name="progressBar_4">
+  <widget class="QProgressBar" name="progressBar_04">
    <property name="geometry">
     <rect>
-     <x>780</x>
-     <y>330</y>
-     <width>118</width>
+     <x>750</x>
+     <y>350</y>
+     <width>71</width>
      <height>23</height>
     </rect>
    </property>
@@ -117,7 +117,7 @@
    <property name="geometry">
     <rect>
      <x>730</x>
-     <y>400</y>
+     <y>420</y>
      <width>31</width>
      <height>31</height>
     </rect>
@@ -133,8 +133,8 @@
    <property name="geometry">
     <rect>
      <x>690</x>
-     <y>240</y>
-     <width>66</width>
+     <y>260</y>
+     <width>51</width>
      <height>17</height>
     </rect>
    </property>
@@ -146,8 +146,8 @@
    <property name="geometry">
     <rect>
      <x>690</x>
-     <y>360</y>
-     <width>66</width>
+     <y>380</y>
+     <width>51</width>
      <height>17</height>
     </rect>
    </property>
@@ -159,8 +159,8 @@
    <property name="geometry">
     <rect>
      <x>690</x>
-     <y>270</y>
-     <width>66</width>
+     <y>290</y>
+     <width>51</width>
      <height>17</height>
     </rect>
    </property>
@@ -172,8 +172,8 @@
    <property name="geometry">
     <rect>
      <x>690</x>
-     <y>330</y>
-     <width>66</width>
+     <y>350</y>
+     <width>51</width>
      <height>17</height>
     </rect>
    </property>
@@ -198,7 +198,7 @@
    <property name="geometry">
     <rect>
      <x>690</x>
-     <y>400</y>
+     <y>420</y>
      <width>32</width>
      <height>32</height>
     </rect>
@@ -214,8 +214,8 @@
    <property name="geometry">
     <rect>
      <x>690</x>
-     <y>300</y>
-     <width>60</width>
+     <y>320</y>
+     <width>51</width>
      <height>17</height>
     </rect>
    </property>
@@ -260,7 +260,7 @@
      <x>680</x>
      <y>110</y>
      <width>231</width>
-     <height>341</height>
+     <height>361</height>
     </rect>
    </property>
    <property name="autoFillBackground">
@@ -424,15 +424,119 @@
     <string>saniye</string>
    </property>
   </widget>
+  <widget class="QLabel" name="label_10">
+   <property name="geometry">
+    <rect>
+     <x>770</x>
+     <y>240</y>
+     <width>31</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Anlık</string>
+   </property>
+  </widget>
+  <widget class="QProgressBar" name="progressBar_06">
+   <property name="geometry">
+    <rect>
+     <x>830</x>
+     <y>260</y>
+     <width>71</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="value">
+    <number>24</number>
+   </property>
+  </widget>
+  <widget class="QProgressBar" name="progressBar_07">
+   <property name="geometry">
+    <rect>
+     <x>830</x>
+     <y>290</y>
+     <width>71</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="value">
+    <number>24</number>
+   </property>
+  </widget>
+  <widget class="QProgressBar" name="progressBar_08">
+   <property name="geometry">
+    <rect>
+     <x>830</x>
+     <y>320</y>
+     <width>71</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="value">
+    <number>24</number>
+   </property>
+  </widget>
+  <widget class="QProgressBar" name="progressBar_09">
+   <property name="geometry">
+    <rect>
+     <x>830</x>
+     <y>350</y>
+     <width>71</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="value">
+    <number>24</number>
+   </property>
+  </widget>
+  <widget class="QProgressBar" name="progressBar_10">
+   <property name="geometry">
+    <rect>
+     <x>830</x>
+     <y>380</y>
+     <width>71</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="value">
+    <number>24</number>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_11">
+   <property name="geometry">
+    <rect>
+     <x>850</x>
+     <y>240</y>
+     <width>41</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Genel</string>
+   </property>
+  </widget>
+  <widget class="Line" name="line_5">
+   <property name="geometry">
+    <rect>
+     <x>815</x>
+     <y>240</y>
+     <width>20</width>
+     <height>161</height>
+    </rect>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Vertical</enum>
+   </property>
+  </widget>
   <zorder>label_6</zorder>
   <zorder>duygular</zorder>
   <zorder>frame</zorder>
-  <zorder>progressBar_7</zorder>
+  <zorder>progressBar_05</zorder>
   <zorder>btnFoto</zorder>
-  <zorder>progressBar</zorder>
-  <zorder>progressBar_3</zorder>
-  <zorder>progressBar_2</zorder>
-  <zorder>progressBar_4</zorder>
+  <zorder>progressBar_01</zorder>
+  <zorder>progressBar_03</zorder>
+  <zorder>progressBar_02</zorder>
+  <zorder>progressBar_04</zorder>
   <zorder>frame3</zorder>
   <zorder>label_3</zorder>
   <zorder>label_7</zorder>
@@ -451,6 +555,14 @@
   <zorder>lineEditvideoSure</zorder>
   <zorder>label_8</zorder>
   <zorder>label_9</zorder>
+  <zorder>label_10</zorder>
+  <zorder>progressBar_06</zorder>
+  <zorder>progressBar_07</zorder>
+  <zorder>progressBar_08</zorder>
+  <zorder>progressBar_09</zorder>
+  <zorder>progressBar_10</zorder>
+  <zorder>label_11</zorder>
+  <zorder>line_5</zorder>
  </widget>
  <resources/>
  <connections/>
