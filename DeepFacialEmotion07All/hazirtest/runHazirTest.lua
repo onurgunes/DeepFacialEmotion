@@ -6,12 +6,37 @@ require 'qtwidget'
 require 'qtuiloader'
 xrequire('nnx',true)
 xrequire('camera',true)
-
-require 'ffmpeg'
-require 'nn'
 require 'optim'
-require 'image'
+require 'pl'
+require 'trepl'
+require 'torch'   -- torch
+require 'image'   -- to visualize the dataset
+require 'nn'      -- provides all sorts of trainable modules/layers
+require 'ffmpeg'
+
+local cv = require 'cv'
+require 'cv.objdetect' -- CascadeClassifier 
+require 'cv.imgcodecs' -- reading/writing images
+require 'cv.imgproc' -- image processing
+require 'cv.highgui' -- GUI
+require 'cv.videoio' -- Video input/output
+
 model = torch.load('egitilmisModel100e5c.net')
+
+loganlikplotgoster = optim.Logger(paths.concat('plot', 'anlikplotgoster.log'))
+anlikplot = {}
+for i=1,5 do
+  anlikplot[i] = 0
+end
+genelyuzdeler = {}
+genelyuzdekaresayisi = 0
+for i=1,5 do
+genelyuzdeler[i] = 0
+end
+genelyuzdesondeger = {}
+for i=1,5 do
+genelyuzdesondeger[i] = 0
+end
 
 classes = {'1imageNotr','2imageMutlu','3imageUzgun','4imageSaskin','5imageSinirli'}
 confusion = optim.ConfusionMatrix(classes)
@@ -26,19 +51,6 @@ labels = torch.Tensor(tesize),
 
 normalization = nn.SpatialContrastiveNormalization(1, image.gaussian1D(7))
 
-require 'pl'
-require 'trepl'
-require 'torch'   -- torch
-require 'image'   -- to visualize the dataset
-require 'nn'      -- provides all sorts of trainable modules/layers
-
-local cv = require 'cv'
-require 'cv.objdetect' -- CascadeClassifier 
-require 'cv.imgcodecs' -- reading/writing images
-require 'cv.imgproc' -- image processing
-require 'cv.highgui' -- GUI
-require 'cv.videoio' -- Video input/output
-
 local cascade_path = 'haarcascade_frontalface_default.xml'
 local face_cascade = cv.CascadeClassifier{filename=cascade_path}
 
@@ -49,9 +61,6 @@ win2 = qt.QtLuaPainter(widget.frame2) -- CROPLU IMAGE GOSTEREN FRAME
 win3 = qt.QtLuaPainter(widget.frame3) -- CROPLU IMAGE GOSTEREN FRAME YUV
 
 function display()
-
-      
-
     -- cv.imshow{"cv1", frame}
     
    local fx = 0.30  -- rescale factor -- 1 olunca hata artar
@@ -96,15 +105,12 @@ function display()
         else
           rgbTensorCroped = convertBRGtoRGB(im)
         end
-
-
       
       -- image.display(rgbTensorCroped)
       
       -- rgbTensorCroped = image.load('test1.png') -- TEST IMAGE EĞİTİMDE KULLANILAN
       
       image.display{image = rgbTensorCroped, win = win2, zoom = 1}  -- CROP GOSTER
-      
               
               testData.data[1] = rgbTensorCroped
               
@@ -134,12 +140,11 @@ function display()
                     pred = model:forward(input)
                     pred:exp()
                     
+                    --[[
                     for i=1,pred:size(1) do
                       print(classes[i], pred[i])
                     end
-                    
-      
-      
+                    ]]--
       end
       -------------------------------------------------------------------------
 
@@ -159,16 +164,52 @@ function display()
      end
       
      if crop then -- crop olursa değerleri değiştir
-       widget.progressBar:setValue(pred[1]*100);
-       widget.progressBar_2:setValue(pred[2]*100);
-       widget.progressBar_3:setValue(pred[3]*100);
-       widget.progressBar_4:setValue(pred[4]*100);
-       widget.progressBar_7:setValue(pred[5]*100);
+       widget.progressBar_01:setValue(pred[1]*100);
+       widget.progressBar_02:setValue(pred[2]*100);
+       widget.progressBar_03:setValue(pred[3]*100);
+       widget.progressBar_04:setValue(pred[4]*100);
+       widget.progressBar_05:setValue(pred[5]*100);
+       
+       
+       -- ANLIK GRAFIK
+       if anlikplot[1] ~= pred[1]*100 and anlikplot[2] ~= pred[2]*100 and anlikplot[3] ~= pred[3]*100 and anlikplot[4] ~= pred[4]*100 and anlikplot[5] ~= pred[5]*100 then
+          anlikplot[1] = pred[1]*100 
+          anlikplot[2] = pred[2]*100 
+          anlikplot[3] = pred[3]*100
+          anlikplot[4] = pred[4]*100
+          anlikplot[5] = pred[5]*100
+          loganlikplotgoster:add{['plotNotr']    = anlikplot[1],
+                                 ['plotMutlu']   = anlikplot[2],
+                                 ['plotUzgun']   = anlikplot[3],
+                                 ['plotSaskin']  = anlikplot[4],
+                                 ['plotSinirli'] = anlikplot[5]}
+          loganlikplotgoster:style{['plotNotr'] = '-',  
+               ['plotMutlu'] = '-',
+               ['plotUzgun'] = '-',
+               ['plotSaskin'] = '-',
+               ['plotSinirli'] = '-'}
+          loganlikplotgoster:plot()
+          
+          -- GENEL HESAPLAMA
+          genelyuzdekaresayisi = genelyuzdekaresayisi + 1
+          for i = 1,5 do
+              genelyuzdeler[i] = genelyuzdeler[i] + anlikplot[i]
+              genelyuzdesondeger[i] = genelyuzdeler[i] / genelyuzdekaresayisi
+              -- print(i..'.duygu '..genelyuzdesondeger[i])
+          end
+              widget.progressBar_06:setValue(genelyuzdesondeger[1]);
+              widget.progressBar_07:setValue(genelyuzdesondeger[2]);
+              widget.progressBar_08:setValue(genelyuzdesondeger[3]);
+              widget.progressBar_09:setValue(genelyuzdesondeger[4]);
+              widget.progressBar_10:setValue(genelyuzdesondeger[5]);
+          
+        end    
+        
+          
+               
+       
      end
 end
-
-
-
 
 
 function videofindImages(videoName,vidSure) -- get images created by video
@@ -178,7 +219,7 @@ function videofindImages(videoName,vidSure) -- get images created by video
         foldername = i
       end
     end
-    print(foldername)
+    -- print(foldername)
     
     videoimagesayisi =1
     --image bul
@@ -199,17 +240,12 @@ function videofindImages(videoName,vidSure) -- get images created by video
     return imagePath
 end
 
-
 function videoLoad(videoName) -- get images created by video
     -- image yukle
     loadType = cv.IMREAD_UNCHANGED
     imageLoaded = cv.imread{videoName, loadType}
     return imageLoaded
 end
-
-
-
-
 
 -----------------------------------------------------------------------
 -- BRG to RGB
@@ -243,7 +279,7 @@ qt.connect(qt.QtLuaListener(widget.btnFoto),
           'sigMousePress(int,int,QByteArray,QByteArray,QByteArray)',
           function ()
             secilecekdosyaadi1 = qt.QFileDialog.getOpenFileName(this,'Foto Seç')
-            print(secilecekdosyaadi1)
+            -- print(secilecekdosyaadi1)
             secilecekdosyaadi = qt.QString.tostring(secilecekdosyaadi1)
             fotoileTest = 1
             webcamileTest  = 0
@@ -276,7 +312,7 @@ qt.connect(qt.QtLuaListener(widget.btnCam),
           end);
     
 
--- DEFAULT DEGERLER
+-- DEFAULT DEGERLER VIDEO
 videoYol = '/home/mkf/Masaüstü/eclipseLUAproj/DeepFacialEmotion07All/hazirtest/video.avi'
 videoAd = 'video.avi'
 videoWidth   = 320
@@ -285,7 +321,7 @@ videoSeconds = 10     -- kac saniye
 videoFps     = 25    -- saniyede kac frame
 videoToplam  = videoSeconds * videoFps
 videoBasla   = 1 
-function GetFileName(filepath)
+function GetFileName(filepath)  -- path den dasya adi bulur
   return filepath:match("^.+/(.+)$")
 end
 
@@ -328,9 +364,6 @@ qt.connect(qt.QtLuaListener(widget.btnVideo),
             timer1:start()
           end);
           
-          
-
-          
 -- Video Sec button callback
 qt.connect(qt.QtLuaListener(widget.btnVideoSec),
           'sigMousePress(int,int,QByteArray,QByteArray,QByteArray)',
@@ -341,12 +374,11 @@ qt.connect(qt.QtLuaListener(widget.btnVideoSec),
             videoYol1 = qt.QFileDialog.getOpenFileName(this,'Video Seç')
             videoYol = qt.QString.tostring(videoYol1)
             videoAd=GetFileName(videoYol)
-            print(videoAd)
-            print(videoYol)
+            -- print(videoAd)
+            -- print(videoYol)
             widget.btnVideoSec.enabled = false
             widget.btnVideo.enabled = true
           end);
-
 
 widget.windowTitle = 'Deep Facial Emotion Detector'
 widget:show()

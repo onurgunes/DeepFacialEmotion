@@ -22,14 +22,14 @@ qt.connect(qt.QtLuaListener(widget.button1),
 qt.connect(qt.QtLuaListener(widget.button2),
           'sigMousePress(int,int,QByteArray,QByteArray,QByteArray)',
           function ()
-           print('button 2 basıldı')
+           -- print('button 2 basıldı')
            os.execute('qlua runTest.lua') 
           end);
 -- 3 button callback 
 qt.connect(qt.QtLuaListener(widget.button3),
           'sigMousePress(int,int,QByteArray,QByteArray,QByteArray)',
           function ()
-            print('button 3 basıldı')
+            -- print('button 3 basıldı')
             os.execute('cd hazirtest;qlua runHazirTest.lua')
           end);
 -----------------------------------------------------------------------

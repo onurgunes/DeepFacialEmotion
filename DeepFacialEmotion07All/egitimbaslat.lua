@@ -1,19 +1,20 @@
+-- KULLANICI EKRANI ÜZERİNDE EĞITİM YAPMA
 
+-- include required packages
 require 'nn'
 require 'optim'
 require 'image'
-require 'gnuplot'
+require 'xlua'  
+require 'qt'
+require 'qtwidget'
+require 'qtuiloader'
 
--- EĞITİM YAPAR
 
-----------------------------------------------------------------------
--- parse command-line options
---
 dname,fname = sys.fpath()
 fname = "egitilmismodel"
 cmd = torch.CmdLine()
 cmd:text()
-cmd:text('CIFAR Training')
+cmd:text('Eğitim')
 cmd:text()
 cmd:text('Options:')
 cmd:option('-save', fname, 'kayıt ve log için alt dizin adı')
@@ -29,27 +30,18 @@ cmd:option('-weightDecay', 0, 'weight decay (SGD only)')
 cmd:option('-momentum', 0, 'momentum (SGD only)')
 cmd:option('-t0', 1, 'start averaging at t0 (ASGD only), in nb of epochs')
 cmd:option('-maxIter', 5, 'maximum nb of iterations for CG and LBFGS')
-cmd:option('-threads', 2, 'nb of threads to use')
+cmd:option('-threads', 1, 'nb of threads to use')
 cmd:text()
 opt = cmd:parse(arg)
 
 -- fix seed
 torch.manualSeed(opt.seed)
 
-
--- include required packages
-require 'xlua'  
-require 'qt'
-require 'qtwidget'
-require 'qtuiloader'
-
 -- setup UI
 widgetEgitim = qtuiloader.load('GUIandData/guiEgitimGorsel.ui')
 winE1 = qt.QtLuaPainter(widgetEgitim.frameE1)
 winE2 = qt.QtLuaPainter(widgetEgitim.frameE2)
 winE3 = qt.QtLuaPainter(widgetEgitim.frameE3)
-
-
 
 -- threads
 torch.setnumthreads(opt.threads)
@@ -156,8 +148,6 @@ labels = torch.Tensor(tesize),
   testData.data[3] = image.load('GUIandData/test3.png')
   testData.labels[3] = 1
 
-
-
 -- preprocess testSet
 for i = 1,testData:size() do
    -- rgb -> yuv
@@ -174,11 +164,7 @@ testData.data[{ {},2,{},{} }]:div(-std_u)
 testData.data[{ {},3,{},{} }]:add(-mean_v)
 testData.data[{ {},3,{},{} }]:div(-std_v)
 
-
-
 collectgarbage()
-
-
 
 ----------------------------------------------------------------------
 -- define training and testing functions
@@ -187,18 +173,16 @@ collectgarbage()
 -- this matrix records the current confusion across classes
 confusion = optim.ConfusionMatrix(classes)
 
--- print(confusion)
-
-
 -- log results to files
 accLogger = optim.Logger(paths.concat(opt.save, 'accuracy.log'))
 errLogger = optim.Logger(paths.concat(opt.save, 'error.log'   ))
 
--- display function
+-- display function EĞİTİM GUI
 function display2(input)
    iter = iter or 0
    require 'image'
    image.display{image = input, win = winE1, zoom = 2}  -- INPUT GOSTER
+   widgetEgitim.windowTitle = 'DeepFED Yüzden Duygu Tanıma - Kullanıcı Eğitim'
    widgetEgitim:show()
    if iter % 10 == 0 then
       if opt.model == 'convnet' then
@@ -245,36 +229,36 @@ function train(dataset, modelAdiKayit)
 
       -- create closure to evaluate f(X) and df/dX
       local feval = function(x)
-         -- get new parameters
-         if x ~= parameters then
-            parameters:copy(x)
-         end
-         -- reset gradients
-         gradParameters:zero()
+       -- get new parameters
+       if x ~= parameters then
+          parameters:copy(x)
+       end
+       -- reset gradients
+       gradParameters:zero()
 
-         -- f is the average of all criterions
-         local f = 0
+       -- f is the average of all criterions
+       local f = 0
 
-         -- evaluate function for complete mini batch
-         for i = 1,#inputs do
-            -- estimate f
-            local output = model:forward(inputs[i])
-            local err = criterion:forward(output, targets[i])
-            f = f + err
+       -- evaluate function for complete mini batch
+       for i = 1,#inputs do
+          -- estimate f
+          local output = model:forward(inputs[i])
+          local err = criterion:forward(output, targets[i])
+          f = f + err
 
-            -- estimate df/dW
-            local df_do = criterion:backward(output, targets[i])
-            model:backward(inputs[i], df_do)
+          -- estimate df/dW
+          local df_do = criterion:backward(output, targets[i])
+          model:backward(inputs[i], df_do)
 
-            -- update confusion
-            confusion:add(output, targets[i])
-            
+          -- update confusion
+          confusion:add(output, targets[i])
+          
 
-            -- visualize?
-            if opt.visualize then
-               display2(inputs[i])
-            end
-         end
+          -- visualize?
+          if opt.visualize then
+             display2(inputs[i])
+          end
+       end
 
          -- normalize gradients and f(X)
          gradParameters:div(#inputs)
@@ -286,29 +270,12 @@ function train(dataset, modelAdiKayit)
       end
 
       -- optimize on current mini-batch
-      if opt.optimization == 'CG' then
-         config = config or {maxIter = opt.maxIter}
-         optim.cg(feval, parameters, config)
-
-      elseif opt.optimization == 'LBFGS' then
-         config = config or {learningRate = opt.learningRate,
-                             maxIter = opt.maxIter,
-                             nCorrection = 10}
-         optim.lbfgs(feval, parameters, config)
-
-      elseif opt.optimization == 'SGD' then
-      
+      if opt.optimization == 'SGD' then
          config = config or {learningRate = opt.learningRate,
                              weightDecay = opt.weightDecay,
                              momentum = opt.momentum,
                              learningRateDecay = 5e-7}
          optim.sgd(feval, parameters, config)
-
-      elseif opt.optimization == 'ASGD' then
-         config = config or {eta0 = opt.learningRate,
-                             t0 = nbTrainingPatches * opt.t0}
-         _,_,average = optim.asgd(feval, parameters, config)
-
       else
          error('unknown optimization method')
       end
@@ -398,9 +365,6 @@ end
 
 ----------------------------------------------------------------------
 -- and train!
---
--- 
-
 
 function trainStart(epoch, modelAdi)
     while epoch > 0 do

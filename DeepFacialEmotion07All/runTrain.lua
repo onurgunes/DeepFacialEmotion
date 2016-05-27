@@ -1,7 +1,4 @@
-
--- KULLANICI IMAGE PAKETLEME &  GUI
-
-
+-- KULLANICI IMAGE OLUSTUR & PAKETLE & EĞİTİM YAP EKRANI
 
 -- include required packages
 require 'xlua'	
@@ -11,16 +8,7 @@ require 'qtuiloader'
 xrequire('nnx',true)
 xrequire('camera',true)
 
-
-require 'nn'
 require 'optim'
-require 'image'
-
--- Önceki format için farklı bir pencelere opencv formatında foro gösterimi vardı
--- Bunun yerine Torch tensor tarzına dönüştürüp window içerisinde gösterir
-
--- OPENCV icin (gereksizler silinecek)
-
 require 'pl'
 require 'trepl'
 require 'torch'   -- torch
@@ -36,7 +24,6 @@ require 'cv.videoio' -- Video input/output
 
 cv.ml = require 'cv.ml' -- Machine Learning
 
--- OPENCV icin (gereksizler silinecek)
 
 local cascade_path = 'GUIandData/haarcascade_frontalface_default.xml'
 local face_cascade = cv.CascadeClassifier{filename=cascade_path}
@@ -49,12 +36,9 @@ win2 = qt.QtLuaPainter(widget.frame2) -- CROPLU IMAGE GOSTEREN FRAME
 -- initializing the camera
   local cap = cv.VideoCapture{device=0}
   local _, frame = cap:read{}
-  -- camera = image.Camera{}
 
 function display()
-  -- frame = torch.Tensor(100,100)
-	-- frame = camera:forward()	-- takes image from camera
-   
+
    local fx = 0.20  -- rescale factor -- 1 olunca hata artar
    local w = frame:size(2)
    local h = frame:size(1)
@@ -86,25 +70,23 @@ function display()
         center={x + w/2, y + h/2},
       }
       if crop then
-      local im = cv.resize{src=crop, dsize={32,32}}:float()
-      imageCroppedCV = im
-      rgbTensorCroped = convertBRGtoRGB(im)
-      image.display{image = rgbTensorCroped, win = win2, zoom = 1}  -- CROP GOSTER
-      
+          local im = cv.resize{src=crop, dsize={32,32}}:float()
+          imageCroppedCV = im
+          rgbTensorCroped = convertBGRtoRGB(im)
+          image.display{image = rgbTensorCroped, win = win2, zoom = 1}  -- CROP GOSTER
       end
       ---------------------
    end
    
-      rgbTensor = convertBRGtoRGB(frame) -- OpenCV formatından Torch'a cevirir.
-      image.display{image = rgbTensor, win = win1, zoom = 1}  --yeni format
-      cap:read{image=frame}
+   rgbTensor = convertBGRtoRGB(frame) -- OpenCV formatından Torch'a cevirir.
+   image.display{image = rgbTensor, win = win1, zoom = 1}  --yeni format
+   cap:read{image=frame}
       
 end
 
-
 -----------------------------------------------------------------------
--- BRG to RGB
-function convertBRGtoRGB(frame)
+-- BGR to RGB
+function convertBGRtoRGB(frame)
       forQTimage = frame:transpose(2,3):transpose(1,2) -- OpenCV formatından Torch'a cevirir.
       --Torch a cevrilen tensor BGR formatindan oldugu icin RGB ye cevrilir.
       local b,g,r = forQTimage[1],forQTimage[2],forQTimage[3]
@@ -118,7 +100,6 @@ end
 -----------------------------------------------------------------------
 -- PATH OLUSTUR
 function createImagePath()
-
       os.execute('mkdir -p ' .. 'images')
       os.execute('mkdir -p ' .. 'images/1imageNotr')
       os.execute('mkdir -p ' .. 'images/2imageMutlu')
@@ -181,7 +162,8 @@ function paketle(im1, im2, im3, im4, im5)
 end
 -----------------------------------------------------------------------
 
-imageNotr    = 0 -- BAŞLANGIÇ DEGERLERİ
+-- BAŞLANGIÇ DEGERLERİ
+imageNotr    = 0 
 imageMutlu   = 0
 imageUzgun   = 0
 imageSaskin  = 0
@@ -307,6 +289,6 @@ qt.connect(timer,
     timer:start()
   end)
 
-widget.windowTitle = 'IMAGE OLUSTUR & PAKETLE & EĞİTİM YAP'
+widget.windowTitle = 'DeepFED Yüzden Duygu Tanıma - Kullanıcı Modeli Image Oluştur & Paketle & Eğitim Yap'
 widget:show()
 timer:start()
