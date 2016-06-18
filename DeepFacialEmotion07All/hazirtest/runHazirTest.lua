@@ -21,7 +21,10 @@ require 'cv.imgproc' -- image processing
 require 'cv.highgui' -- GUI
 require 'cv.videoio' -- Video input/output
 
-model = torch.load('egitilmisModel100e5c.net')
+-- model = torch.load('egitilmisModel100e5c.net')
+-- model = torch.load('egitilmisModel244e5c.net')
+-- model = torch.load('egitilmisModel80e5c.net')
+model = torch.load('egitilmisModel160e5c.net')
 
 loganlikplotgoster = optim.Logger(paths.concat('plot', 'anlikplotgoster.log'))
 anlikplot = {}
@@ -61,14 +64,12 @@ win2 = qt.QtLuaPainter(widget.frame2) -- CROPLU IMAGE GOSTEREN FRAME
 win3 = qt.QtLuaPainter(widget.frame3) -- CROPLU IMAGE GOSTEREN FRAME YUV
 
 function display()
-    -- cv.imshow{"cv1", frame}
     
-   local fx = 0.30  -- rescale factor -- 1 olunca hata artar
+   local fx = 0.40  -- rescale factor -- 1 olunca hata artar
    local w = frame:size(2)
    local h = frame:size(1)
    local im2 = cv.resize{src=frame, fx=fx, fy=fx}
    
-   -- cv.cvtColor{src=im2, dst=im2, code=cv.COLOR_BGR2GRAY} -- PROBLEM VAR
    im2 = cv.cvtColor{im2, code=cv.COLOR_RGB2GRAY}
    
    local faces = face_cascade:detectMultiScale{image = im2} 
@@ -105,10 +106,6 @@ function display()
         else
           rgbTensorCroped = convertBRGtoRGB(im)
         end
-      
-      -- image.display(rgbTensorCroped)
-      
-      -- rgbTensorCroped = image.load('test1.png') -- TEST IMAGE EĞİTİMDE KULLANILAN
       
       image.display{image = rgbTensorCroped, win = win2, zoom = 1}  -- CROP GOSTER
               
@@ -147,15 +144,10 @@ function display()
                     ]]--
       end
       -------------------------------------------------------------------------
-
-
-
       
    end
    
       rgbTensor = convertBRGtoRGB(frame) -- OpenCV formatından Torch'a cevirir.
-      
-      -- cv.imshow{winname="Yuz Bulur", image=frame} Eski OpenCV formatı pencere
       
       image.display{image = rgbTensor, win = win1, zoom = 1}  --yeni format
       
@@ -170,7 +162,7 @@ function display()
        widget.progressBar_04:setValue(pred[4]*100);
        widget.progressBar_05:setValue(pred[5]*100);
        
-       
+       --[[
        -- ANLIK GRAFIK
        if anlikplot[1] ~= pred[1]*100 and anlikplot[2] ~= pred[2]*100 and anlikplot[3] ~= pred[3]*100 and anlikplot[4] ~= pred[4]*100 and anlikplot[5] ~= pred[5]*100 then
           anlikplot[1] = pred[1]*100 
@@ -203,13 +195,9 @@ function display()
               widget.progressBar_09:setValue(genelyuzdesondeger[4]);
               widget.progressBar_10:setValue(genelyuzdesondeger[5]);
           
-        end    
-        
-          
-               
-       
+        end ]]--
      end
-end
+end 
 
 
 function videofindImages(videoName,vidSure) -- get images created by video
@@ -271,7 +259,6 @@ function convertRGBtoBGR(frame)  -- Torch formatından OpenCV e cevirir.
       --Bu aşamadan sonra rgbTensor formati OpenCV ye uygun
       return rgbTensor
 end
------------------------------------------------------------------------
 -----------------------------------------------------------------------
 
 -- fotograf button callback
@@ -344,7 +331,7 @@ qt.connect(qt.QtLuaListener(widget.btnVideo),
             videoPathNames = videofindImages(videoAd,videoSeconds)
                           
             timer1 = qt.QTimer()
-            timer1.interval = 40
+            timer1.interval = 50
             timer1.singleShot = true
             qt.connect(timer1,
                        'timeout()',
