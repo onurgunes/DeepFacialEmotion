@@ -1,0 +1,36 @@
+
+-- User Intro GUI
+
+-- include required packages
+require 'xlua'	
+require 'qt'
+require 'qtwidget'
+require 'qtuiloader'
+
+-- setup UI
+widget = qtuiloader.load('GUIandData/guiStart.ui')
+win1 = qt.QtLuaPainter(widget.frame)
+
+------------------------------------------------------------------------
+-- 1 button callback 
+qt.connect(qt.QtLuaListener(widget.button1),
+          'sigMousePress(int,int,QByteArray,QByteArray,QByteArray)',
+          function ()
+		        os.execute('qlua runTrain.lua') 
+          end);
+-- 2 button callback 
+qt.connect(qt.QtLuaListener(widget.button2),
+          'sigMousePress(int,int,QByteArray,QByteArray,QByteArray)',
+          function ()
+           os.execute('qlua runTest.lua') 
+          end);
+-- 3 button callback 
+qt.connect(qt.QtLuaListener(widget.button3),
+          'sigMousePress(int,int,QByteArray,QByteArray,QByteArray)',
+          function ()
+            os.execute('cd hazirtest;qlua runHazirTest.lua')
+          end);
+-----------------------------------------------------------------------
+
+widget.windowTitle = 'DeepFED Deep Facial Emotion Detection'
+widget:show()
